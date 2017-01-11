@@ -19,6 +19,10 @@ body {
     max-height: 80px;
 }
 
+#ap_canvas {
+    cursor: pointer;
+}
+
 footer {
     position: fixed;
     bottom: 0px;
@@ -27,4 +31,5 @@ footer {
     background: rgba(16, 16, 16, 0.8);
     text-align: center;
     color: white;
+    cursor: pointer;
 }

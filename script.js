@@ -2,6 +2,11 @@ $(function(){
 
     canvas_init();
 
+    $("#ad").click(function () {
+        $(this).hide();
+        return false;
+    });
+
 });
 
 function canvas_init() {
@@ -20,9 +25,9 @@ function canvas_init() {
     objHeight = 50;
 
     var objX1 = 520
-    var objY1 = 50;
+    var objY1 = 40;
     var objX2 = 520;
-    var objY2 = 150;
+    var objY2 = 110;
 
     canvas_draw();
 
@@ -46,16 +51,18 @@ function canvas_init() {
         }
 
         if (active.x1 < x && x < active.x2 && active.y1 < y && y < active.y2) {
-            active.child.forEach(function(element) {
-                if (element.x1 < x && x < element.x2) {
-                    active = element;
-                }
-            }, this);
-        } else if (20 < x && x < 520 && active.y1 < y && y < active.y2) {
+            if (active.child.length > 1) {
+                active.child.forEach(function(element) {
+                    if (element.x1 < x && x < element.x2) {
+                        active = element;
+                    }
+                }, this);
+            }
+        } else if (20 < x && x < 480 && active.y1 < y && y < active.y2) {
             if (active.parent != null) {
                 active = active.parent;
             }
-        } else if (20 < x && x < 520 && 20 < y && y < 520) {
+        } else if (20 < x && x < 480 && 20 < y && y < 620) {
             root.child.forEach(function(element) {
                 if (element.y1 < y && y < element.y2) {
                     active = element;
@@ -88,12 +95,11 @@ function canvas_init() {
         x = e.clientX - offsetX;
         y = e.clientY - offsetY;
         objX1 = 520;
-        objY1 = 50;
+        objY1 = 40;
         objX2 = 520;
-        objY2 = 150;
-
+        objY2 = 110;
         if (dragging != 0) {
-            if (active.x1 < x && x < active.x2 && active.y1 < y && y < active.y2) {
+            if (active.x1 < x && x < active.x2 && active.y1 < y && y < active.y2) {            
                 if (dragging != 0) {
                     var p = active.addChild();
                     p.addChild();
@@ -102,10 +108,16 @@ function canvas_init() {
                     }, this);
                 }
             } else if (root.x1 < x && x < root.x2) {
-                if (y < active.y1) {
-                    root.addChild();
+                if (y < active.y1 && root.child.length < 5) {
+                    var p = root.addFirstChild();
+                    p.addChild();
+                    p.y1 = 40;
+                    p.y2 = p.y1 + 100;
+                    p.x1 = root.x1;
+                    p.x2 = root.x2;
+                    active = p;
                 }
-                if (y > active.y2) {
+                if (y > active.y2 && root.child.length < 5) {
                     var p = root.addChild();
                     p.addChild();
                     p.y1 = (root.child.length - 1) * 100 + 40;
@@ -114,9 +126,10 @@ function canvas_init() {
                     p.x2 = root.x2;
                     active = p;
                 }
+                canvas_draw();
             }
-            dragging = 0;
         }
+        dragging = 0;
         canvas_draw();
     }
 
@@ -124,14 +137,18 @@ function canvas_init() {
         context.clearRect(0, 0, canvas.width, canvas.height); // キャンバスをクリア
         context.strokeStyle = 'rgb(96, 96, 96)';
         context.lineWidth = 1;
-        context.strokeRect(20, 20, 610, 610);
+        context.strokeRect(20, 20, 610, 540);
         context.moveTo(500, 20);
-        context.lineTo(500, 630);
+        context.lineTo(500, 560);
+        context.closePath();
+        context.stroke();
+        context.moveTo(500, 180);
+        context.lineTo(630, 180);
         context.closePath();
         context.stroke();
 
-        context.strokeRect(520, 50, objWidth, objHeight);
-        context.strokeRect(520, 150, objWidth, objHeight);
+        context.strokeRect(520, 40, objWidth, objHeight);
+        context.strokeRect(520, 110, objWidth, objHeight);
 
         if (dragging == 1) {
             drawRect1();
@@ -196,6 +213,20 @@ var Pattern = function() {
         p.y1 = this.y1;
         p.y2 = this.y2;
         this.child.push(p);
+        p.setSize();
+        return p;
+    }
+    this.addFirstChild = function(){
+        this.child.forEach(function(element) {
+            element.y1 += 100;
+            element.y2 += 100;
+            element.setSize();
+        }, this);
+        var p = new Pattern();
+        p.parent = this;
+        p.y1 = 40;
+        p.y2 = 140;
+        this.child.unshift(p);
         p.setSize();
         return p;
     }
